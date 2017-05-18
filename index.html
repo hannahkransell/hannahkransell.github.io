@@ -7,11 +7,14 @@
 </head>
 <body>
 	<canvas id="world"></canvas>
+	<div id="content-box">
+		<p>hannah.kransell@gmail.com</p>
+	</div>
 </body>
 <script type="text/javascript">
 	var COLORS, Confetti, NUM_CONFETTI, PI_2, canvas, confetti, context, drawCircle, i, range, resizeWindow, xpos;
 
-NUM_CONFETTI = 350;
+NUM_CONFETTI = 200;
 
 COLORS = [[85, 71, 106], [174, 61, 99], [219, 56, 83], [244, 92, 68], [248, 182, 70]];
 
@@ -63,20 +66,20 @@ Confetti = (function() {
   function Confetti() {
     this.style = COLORS[~~range(0, 5)];
     this.rgb = "rgba(" + this.style[0] + "," + this.style[1] + "," + this.style[2];
-    this.r = ~~range(2, 6);
+    this.r = ~~range(2, 20);
     this.r2 = 2 * this.r;
     this.replace();
   }
 
   Confetti.prototype.replace = function() {
     this.opacity = 0;
-    this.dop = 0.03 * range(1, 4);
+    this.dop = 0.03 * range(-10, 1);
     this.x = range(-this.r2, w - this.r2);
     this.y = range(-20, h - this.r2);
     this.xmax = w - this.r;
     this.ymax = h - this.r;
     this.vx = range(0, 2) + 8 * xpos - 5;
-    return this.vy = 0.7 * this.r + range(-1, 1);
+    return this.vy = 0.1 * this.r + range(-1, 2);
   };
 
   Confetti.prototype.draw = function() {
