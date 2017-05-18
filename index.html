@@ -2,78 +2,126 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>JS Drum Kit</title>
+  <title>Hannah</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="keys">
-    <div data-key="65" class="key">
-      <kbd>A</kbd>
-      <span class="sound">clap</span>
-    </div>
-    <div data-key="83" class="key">
-      <kbd>S</kbd>
-      <span class="sound">hihat</span>
-    </div>
-    <div data-key="68" class="key">
-      <kbd>D</kbd>
-      <span class="sound">kick</span>
-    </div>
-    <div data-key="70" class="key">
-      <kbd>F</kbd>
-      <span class="sound">openhat</span>
-    </div>
-    <div data-key="71" class="key">
-      <kbd>G</kbd>
-      <span class="sound">boom</span>
-    </div>
-    <div data-key="72" class="key">
-      <kbd>H</kbd>
-      <span class="sound">ride</span>
-    </div>
-    <div data-key="74" class="key">
-      <kbd>J</kbd>
-      <span class="sound">snare</span>
-    </div>
-    <div data-key="75" class="key">
-      <kbd>K</kbd>
-      <span class="sound">tom</span>
-    </div>
-    <div data-key="76" class="key">
-      <kbd>L</kbd>
-      <span class="sound">tink</span>
-    </div>
-  </div>
-
-  <audio data-key="65" src="sounds/clap.wav"></audio>
-  <audio data-key="83" src="sounds/hihat.wav"></audio>
-  <audio data-key="68" src="sounds/kick.wav"></audio>
-  <audio data-key="70" src="sounds/openhat.wav"></audio>
-  <audio data-key="71" src="sounds/boom.wav"></audio>
-  <audio data-key="72" src="sounds/ride.wav"></audio>
-  <audio data-key="74" src="sounds/snare.wav"></audio>
-  <audio data-key="75" src="sounds/tom.wav"></audio>
-  <audio data-key="76" src="sounds/tink.wav"></audio>
-
-<script>
-  function removeTransition(e) {
-    if (e.propertyName !== 'transform') return;
-    e.target.classList.remove('playing');
-  }
-
-  function playSound(e) {
-    const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
-    const key = document.querySelector(`div[data-key="${e.keyCode}"]`);
-    if (!audio) return;
-
-    key.classList.add('playing');
-    audio.currentTime = 0;
-    audio.play();
-  }
-
-  const keys = Array.from(document.querySelectorAll('.key'));
-  keys.forEach(key => key.addEventListener('transitionend', removeTransition));
-  window.addEventListener('keydown', playSound);
-</script>
+	<canvas id="world"></canvas>
 </body>
+<script type="text/javascript">
+	var COLORS, Confetti, NUM_CONFETTI, PI_2, canvas, confetti, context, drawCircle, i, range, resizeWindow, xpos;
+
+NUM_CONFETTI = 350;
+
+COLORS = [[85, 71, 106], [174, 61, 99], [219, 56, 83], [244, 92, 68], [248, 182, 70]];
+
+PI_2 = 2 * Math.PI;
+
+canvas = document.getElementById("world");
+
+context = canvas.getContext("2d");
+
+window.w = 0;
+
+window.h = 0;
+
+resizeWindow = function() {
+  window.w = canvas.width = window.innerWidth;
+  return window.h = canvas.height = window.innerHeight;
+};
+
+window.addEventListener('resize', resizeWindow, false);
+
+window.onload = function() {
+  return setTimeout(resizeWindow, 0);
+};
+
+range = function(a, b) {
+  return (b - a) * Math.random() + a;
+};
+
+drawCircle = function(x, y, r, style) {
+  context.beginPath();
+  context.arc(x, y, r, 0, PI_2, false);
+  context.fillStyle = style;
+  return context.fill();
+};
+
+xpos = 0.5;
+
+document.onmousemove = function(e) {
+  return xpos = e.pageX / w;
+};
+
+window.requestAnimationFrame = (function() {
+  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
+    return window.setTimeout(callback, 1000 / 60);
+  };
+})();
+
+Confetti = (function() {
+  function Confetti() {
+    this.style = COLORS[~~range(0, 5)];
+    this.rgb = "rgba(" + this.style[0] + "," + this.style[1] + "," + this.style[2];
+    this.r = ~~range(2, 6);
+    this.r2 = 2 * this.r;
+    this.replace();
+  }
+
+  Confetti.prototype.replace = function() {
+    this.opacity = 0;
+    this.dop = 0.03 * range(1, 4);
+    this.x = range(-this.r2, w - this.r2);
+    this.y = range(-20, h - this.r2);
+    this.xmax = w - this.r;
+    this.ymax = h - this.r;
+    this.vx = range(0, 2) + 8 * xpos - 5;
+    return this.vy = 0.7 * this.r + range(-1, 1);
+  };
+
+  Confetti.prototype.draw = function() {
+    var ref;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.opacity += this.dop;
+    if (this.opacity > 1) {
+      this.opacity = 1;
+      this.dop *= -1;
+    }
+    if (this.opacity < 0 || this.y > this.ymax) {
+      this.replace();
+    }
+    if (!((0 < (ref = this.x) && ref < this.xmax))) {
+      this.x = (this.x + this.xmax) % this.xmax;
+    }
+    return drawCircle(~~this.x, ~~this.y, this.r, this.rgb + "," + this.opacity + ")");
+  };
+
+  return Confetti;
+
+})();
+
+confetti = (function() {
+  var j, ref, results;
+  results = [];
+  for (i = j = 1, ref = NUM_CONFETTI; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+    results.push(new Confetti);
+  }
+  return results;
+})();
+
+window.step = function() {
+  var c, j, len, results;
+  requestAnimationFrame(step);
+  context.clearRect(0, 0, w, h);
+  results = [];
+  for (j = 0, len = confetti.length; j < len; j++) {
+    c = confetti[j];
+    results.push(c.draw());
+  }
+  return results;
+};
+
+step();
+</script>
 </html>
